@@ -68,6 +68,12 @@ for (ts in 3:9) {
   upperconf
 }
 
+
+#Linear interpolation on the log-returns
+#Looking at plots, it doesn't look like linear regression is very good
+#Prediction intervals are not very nice and very wide which does not inspire much confidence in the interpolation
+#Will probably switch back to trying stuff with the arima model
+
 par(mfrow = c(1,1))
 plot(logdata[,2],logdata[,3], type = "l", xlim = c(0,300), ylim = c(1.5,2.2))
 lines(logdata[199:248,2],upperconf[[1]][-length(upperconf[[1]])], type = "l", col = "red")

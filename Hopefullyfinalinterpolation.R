@@ -42,28 +42,65 @@ for (ts in 1:7) {
   logretvalues <- autoplot(diff(tmp), ylab = logretlabs[ts])
   acfplot <- ggAcf(diff(tmp), type = "correlation", lag.max = 200)
   pacfplot <- ggAcf(diff(tmp), type = "partial", lag.max = 200)
+  ljungbox
   print(logvalues / logretvalues / acfplot / pacfplot)
 }
 
-#Looking at plots, seems reasonable that gurkor can be fit by an ARIMA(0,1,0) model
+#only looking to fit arima to the points before the missing 50 inside the data
 
-#for guitars, only a small few later values outside acf & pacf 95% bands. No significant early lags
+#Gurkor has no significant lags in both acf and pacf => possibly ARIMA(0,1,0). Will also test 1,1,0 & 0,1,1 & 1,1,1
 
-#Looking at slingshots, similar case, but lag 1 seems more significant in both acfr and pacf
-#which suggests ARIMA(1,1,1)
+#guitars only have a few significant lags later on => possibly ARIMA(0,1,0), will try same models as with gurkor
 
-#For the stock, no significant lags until much later and they are realitively few, back to ARIMA(0,1,0)
+#Slingshots very similar to guitars, which we have seen from correlations. But, here the first lag is almost significant
+#hence, will try same models as above, but also try 2,1,0  & 0,1,2 & 2,1,1 & 1,1,2 & 2,1,2
 
-#Not sure about sugar
+#for stock, will try same arima as gurkor and guitars
 
-#for water, No initial significant lags, some later lags become large, probably because of the straight line
-#possibly ARIMA(0,1,0) as I don't see other symmetries, this can also be motivated by the similarities between water & gurkor
+#will do the same for sugar
 
-#Tranquility has significant 2 first lags immidiately suggesting ARIMA(2,1,2)
-#but there are a lot of significant lags in the acf plot suggesting possible seasonality
+#will do same for water, there is a big spike in the acf but this is probably due to some already imputed values in the data
 
-#the ones that are assumed to have no season:
-#gurkor,water,
+#tranquility seems to have both p and q to be significant up to lag 2 and then cuts off. Hence will try the usual and 2,1,2 & 3,1,2 & 2,1,3 & 3,1,3
+
+#------------------------------------------------------------
+#We need to do some kind of validation, will divide data into 5 folds.
+
+#                                 train on fold 1, test on fold 2
+#                                 train on 1 & 2, test on 3
+#                                 train on 1:3, test on 4
+#                                 train on 1:4, test on 5
+
+#Then we refit the model that seemed to be the best on the entire set for forecasting 
+
+K <- 5
+train1 <- list()
+train2 <- list()
+train3 <- list()
+train4 <- list()
+
+test1 <- list()
+test2 <- list()
+test3 <- list()
+test4 <- list()
+
+#List of lists containing the train/test sets for all data. first index is # folds trained on while second is which dataset
+
+#gurkor = 1, guitars = 2, slingshots = 3, stock = 4, sugar = 5, water = 6, tranquility = 7
+
+train <- list(train1,train2,train3,train4)
+test <- list(test1,test2,test3,test4)
+for (i in 1:4) {
+  l <- i/K
+  for (ts in 1:7) {
+    trainindex <- 1:(l*length(interpdata[[ts]]))
+    train[[i]][[ts]] <- interpdata[[ts]][trainindex]
+    
+    testindex <- (length(trainindex) + 1):(length(trainindex) + 0.2*length(interpdata[[ts]]))
+    test[[i]][[ts]] <- interpdata[[ts]][testindex]
+  }
+}
+
 #------------------------------------------------------------
 #Fitting models for gurkor
 
@@ -117,7 +154,7 @@ autoaveragemae <- autoaveragemae/length(autogurkmaes)
 selfaveragemae
 autoaveragemae   #Using auto.arima seems to induce some overfitting, model ARIMA(0,1,0) seems pretty good
 #---------------------------------------------------------
-#Frequency 12?????
+#Frequency 12?
 
 sugar <- ts(interpdata[[5]])
 plot(sugar)

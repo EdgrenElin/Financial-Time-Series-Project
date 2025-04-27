@@ -223,7 +223,33 @@ checkresiduals(tranqmod, lag = 50)
 autotranq <- auto.arima(interpdata[[7]])
 checkresiduals(autotranq, lag = 50)
 
+gurkfor <- forecast(gurkmod, h=50)
+guitfor <- forecast(guitmod, h=50)
+slingfor <- forecast(slingmod, h=50)
+stockfor <- forecast(stockmod, h=50)
+sugarfor <- forecast(sugarmod, h=50)
+waterfor <- forecast(watermod, h=50)
+tranqfor <- forecast(tranqmod, h=50)
 
+par(mfrow = c(1,1))
+
+plot.ts(gurkfor, xlim = c(0,length(data[,3])), ylim = c(1.7,2.7))
+lines(data[,3])
+
+
+data[199:248,3] <- gurkfor$mean
+data[399:448,4] <- guitfor$mean
+data[599:648,5] <- slingfor$mean
+data[799:848,6] <- stockfor$mean
+data[999:1048,7] <- sugarfor$mean
+data[1199:1248,8] <- waterfor$mean
+data[1399:1448,9] <- tranqfor$mean
+
+plot.ts(data)
+
+
+data <- as.data.frame(data)
+write.csv(data, "C:/Users/phili/Documents/R-codes/interpolated_data.csv")
 #testtranq <- ts(interpdata[[7]], frequency = 252)
 #testmod <- auto.arima(testtranq, trace = TRUE)
 #seems that the residuals of fitted arima models on tranquility are not white noise.

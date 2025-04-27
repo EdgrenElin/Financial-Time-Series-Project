@@ -203,3 +203,30 @@ for (ts in 1:7) {
 }
 
 #Just need to choose models and refit + forecast to get interpolation
+
+gurkmod <- Arima(interpdata[[1]], order = gurkorders[[1]])
+guitmod <- Arima(interpdata[[2]], order = guitorders[[2]])
+slingmod <- Arima(interpdata[[3]], order = slingorders[[2]])
+stockmod <- Arima(interpdata[[4]], order = stockorders[[1]])
+sugarmod <- Arima(interpdata[[5]], order = sugarorders[[2]])
+watermod <- Arima(interpdata[[6]], order = waterorders[[2]])
+tranqmod <- Arima(interpdata[[7]], order = tranqorders[[5]])
+
+checkresiduals(gurkmod, lag = 50)
+checkresiduals(guitmod, lag = 50)
+checkresiduals(slingmod, lag = 50)
+checkresiduals(stockmod, lag = 50)
+checkresiduals(sugarmod, lag = 50)
+checkresiduals(watermod, lag = 50)
+checkresiduals(tranqmod, lag = 50)
+
+autotranq <- auto.arima(interpdata[[7]])
+checkresiduals(autotranq, lag = 50)
+
+
+#testtranq <- ts(interpdata[[7]], frequency = 252)
+#testmod <- auto.arima(testtranq, trace = TRUE)
+#seems that the residuals of fitted arima models on tranquility are not white noise.
+
+
+
